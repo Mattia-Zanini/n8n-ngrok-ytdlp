@@ -1,0 +1,17 @@
+# ATTENZIONE: Rinomina questo file in ".env" per renderlo attivo
+# NON condividere il file .env con le tue chiavi reali su repository pubblici!
+
+# Imposta il tuo fuso orario
+TIMEZONE=Europe/Rome
+
+# Il tuo Authtoken di Ngrok (trovalo nella dashboard di Ngrok)
+NGROK_TOKEN=inserisci_qui_il_tuo_token_ngrok_segreto
+
+# L'URL del dominio statico che hai prenotato su Ngrok
+# Esempio: https://mio-dominio.ngrok-free.app
+URL=https://inserisci-il-tuo-dominio.ngrok-free.app
+
+# Una chiave segreta a tua scelta per proteggere l'API del Python Worker
+# Generane una lunga e complessa. n8n dovrà usare questa chiave nell'header "X-API-KEY".
+# Puoi generarne una sicura con questo comando nel terminale: openssl rand -hex 32
+PYTHON_WORKER_API_KEY=genera_una_stringa_casuale_e_sicura

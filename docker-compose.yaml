@@ -1,0 +1,51 @@
+services:
+  n8n:
+    container_name: n8n
+    image: docker.n8n.io/n8nio/n8n
+    environment:
+      - WEBHOOK_URL=${URL}
+      - TZ=${TIMEZONE}
+      - GENERIC_TIMEZONE=${TIMEZONE}
+      - N8N_BLOCK_FS_WRITE_ACCESS=false
+      - NODES_EXCLUDE=[]
+    ports:
+      - "127.0.0.1:5678:5678"
+    networks:
+      - n8n-network
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./shared_data:/home/node/.n8n-files
+
+  python_worker:
+    build: ./python_worker
+    container_name: python_worker
+    environment:
+      - PYTHON_WORKER_API_KEY=${PYTHON_WORKER_API_KEY}
+    networks:
+      - n8n-network
+    volumes:
+      - ./python_worker/scripts:/app/scripts:ro
+      - ./python_worker/cookies.txt:/app/cookies.txt
+      - ./shared_data:/data
+
+  ngrok:
+    container_name: ngrok
+    image: ngrok/ngrok:latest
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_TOKEN}
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    networks:
+      - n8n-network
+    volumes:
+      - ./ngrok.yml:/etc/ngrok.yml
+
+volumes:
+  n8n_data:
+
+networks:
+  n8n-network:
+    driver: bridge

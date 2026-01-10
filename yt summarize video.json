@@ -1,0 +1,565 @@
+{
+  "name": "yt summarize video",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c9b67489-17d8-41c8-b527-4ccada7cb259",
+              "leftValue": "={{ $json.isYouTubeLinkValid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        128
+      ],
+      "id": "65356c19-c29c-4845-9331-2abd12fd8c9d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://python_worker:5000/run",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-KEY",
+              "value": "insert_key_here"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"script\": \"get_subs.py\",\n  \"args\": [\"https://www.youtube.com/watch?v={{ $('Link check regex').item.json.youtubeVideoId }}\"]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1104,
+        160
+      ],
+      "id": "e4f26cc2-37ec-4188-af39-36e66df4af89",
+      "name": "POST python worker",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "url": "=https://www.youtube.com/oembed?format=json&url={{ $json.message.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        736,
+        112
+      ],
+      "id": "431e7561-58c1-4fd8-a4c5-2a58b27fb0ca",
+      "name": "GET youtube oembed",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Questa espressione regolare è progettata per catturare i formati comuni degli URL di YouTube.\n// Cerca di estrarre l'ID del video di 11 caratteri, ma per la validazione,\n// ci interessa solo se corrisponde al modello generale.\n// Le regex in JS non hanno bisogno di essere compilate esplicitamente come in Python\n// per un uso singolo come 'match()'.\nconst YOUTUBE_URL_REGEX = /^(?:https?:\\/\\/)?(?:www\\.)?(?:m\\.)?(?:youtube\\.com|youtu\\.be)\\/(?:watch\\?v=|embed\\/|v\\/|)([\\w-]{11})(?:\\S+)?$/;\n\n// La variabile 'items' contiene i dati in entrata dal nodo precedente (Telegram Trigger).\n// È una lista di oggetti, dove ogni oggetto tipicamente ha una chiave 'json'.\nfor (const item of items) {\n  // Ottieni in modo sicuro il testo del messaggio. Se una qualsiasi chiave è mancante,\n  // imposterà 'messageText' su undefined, evitando errori.\n  const messageText = item?.json?.message?.text;\n\n  let isYouTubeLinkValid = false;\n  let youtubeVideoId = null; // Opzionale: per memorizzare l'ID del video estratto\n\n  if (messageText) {\n    // Tenta di far corrispondere la regex al testo del messaggio.\n    // Il metodo 'match' restituisce un array di corrispondenze o null.\n    const match = messageText.match(YOUTUBE_URL_REGEX);\n\n    if (match) {\n      isYouTubeLinkValid = true;\n      // L'ID del video è tipicamente nel primo gruppo di cattura (match[1])\n      youtubeVideoId = match[1];\n    }\n  }\n\n  // Aggiungi il risultato della validazione e opzionalmente l'ID del video al JSON dell'elemento.\n  // Questo rende il risultato disponibile per i nodi successivi in n8n.\n  // Assicurati che 'item.json' esista prima di aggiungere proprietà.\n  if (!item.json) {\n    item.json = {};\n  }\n  item.json.isYouTubeLinkValid = isYouTubeLinkValid;\n  item.json.youtubeVideoId = youtubeVideoId; // Potrebbe essere utile in seguito!\n}\n\n// Restituisci la lista 'items' modificata.\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        -96
+      ],
+      "id": "bb7eda06-7f30-4385-896b-18248706ee69",
+      "name": "Link check regex"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Iterates over all incoming items from the HTTP Request node\nreturn $input.all().map(item => {\n  const rawStdout = item.json.stdout;\n  let parsedData = {};\n\n  try {\n    // Converts the string stored in stdout into a real JSON object\n    parsedData = JSON.parse(rawStdout);\n  } catch (e) {\n    // Fallback if stdout is not valid JSON\n    parsedData = { \n      error: \"Could not parse JSON from stdout\", \n      raw_payload: rawStdout \n    };\n  }\n\n  // Returns the cleaned object with English attribute names\n  return {\n    json: {\n      status: item.json.status,\n      message: parsedData.message || null,\n      args: parsedData.received_args || [],\n      stderr: item.json.stderr, // Important for debugging yt-dlp logs\n      return_code: item.json.return_code\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        -384
+      ],
+      "id": "4e4fc32c-0364-4d5d-baf7-61ef42168739",
+      "name": "Response cleaning"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://python_worker:5000/run",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-KEY",
+              "value": "insert_key_here"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"script\": \"test_script.py\",\n  \"args\": [\"Mario\", \"Rossi\"]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        992,
+        -384
+      ],
+      "id": "d3a2842f-9e02-4afb-bcc5-7f3ed8f8e0c7",
+      "name": "POST python worker test",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.data.n8n_file_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        1376,
+        80
+      ],
+      "id": "4612c77a-f997-410c-ae97-997dd20821a2",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "dataTXT",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        64
+      ],
+      "id": "1dcc5d10-8423-47de-804c-8b6914b662be",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Potresti riassumermi in italiano questa trascrizione di un video youtube?\n\nTitolo: {{ $json.title }}\nTrascrizione:\n{{ $json.dataTXT }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        2288,
+        -128
+      ],
+      "id": "89aa54ff-831e-41ad-a309-828e4e3a609d",
+      "name": "Message a model",
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "LB1mfhiXYsnfJF9o",
+          "name": "Google gemini mio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3024,
+        -16
+      ],
+      "id": "10854ab1-cb47-4ab0-ab61-cdc8c5bda9a3",
+      "name": "Send final response",
+      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ynsYd70PKmOb5Bbl",
+          "name": "yt summurize bot"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2800,
+        -352
+      ],
+      "id": "5deb7b03-8f7c-486e-a18b-56387bfe8797",
+      "name": "Merge final",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "content.parts[0].text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        -128
+      ],
+      "id": "0c4d3558-3377-4509-a1cb-9b9552e2d5c2",
+      "name": "extract text"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "title"
+            },
+            {
+              "fieldToAggregate": "dataTXT"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2064,
+        -128
+      ],
+      "id": "e0b9c5ec-9811-4788-94f7-6f44c602b610",
+      "name": "Essentials data for gemini"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1888,
+        -128
+      ],
+      "id": "9a6b10c2-2fee-4581-a311-756ae7a9378c",
+      "name": "Merge pre AI",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -96
+      ],
+      "id": "e3b85107-5032-4a2a-b61a-ce679abda93b",
+      "name": "Receive message",
+      "webhookId": "2904795c-b328-4b29-9e6f-8a4ac8476a06",
+      "credentials": {
+        "telegramApi": {
+          "id": "ynsYd70PKmOb5Bbl",
+          "name": "yt summurize bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "=rm  {{ $('POST python worker').item.json.data.n8n_file_path }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        3232,
+        -16
+      ],
+      "id": "6bd7781a-ee56-450e-9e2b-8fb608070a34",
+      "name": "Delete transcription file"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
+        "text": "=ERRORE: formato link di youtube non corretto",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        336
+      ],
+      "id": "18cf8714-f9e6-483a-a3fa-dd2ee590324b",
+      "name": "Send error regex",
+      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ynsYd70PKmOb5Bbl",
+          "name": "yt summurize bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
+        "text": "=ERRORE: il video condiviso non è valido",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        336
+      ],
+      "id": "10e1ebb9-07bd-434b-ba8d-fc03a4b21dc8",
+      "name": "Send error video not valid",
+      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ynsYd70PKmOb5Bbl",
+          "name": "yt summurize bot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "GET youtube oembed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send error regex",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET youtube oembed": {
+      "main": [
+        [
+          {
+            "node": "POST python worker",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge pre AI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send error video not valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link check regex": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST python worker": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Merge pre AI",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "extract text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send final response": {
+      "main": [
+        [
+          {
+            "node": "Delete transcription file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge final": {
+      "main": [
+        [
+          {
+            "node": "Send final response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract text": {
+      "main": [
+        [
+          {
+            "node": "Merge final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Essentials data for gemini": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge pre AI": {
+      "main": [
+        [
+          {
+            "node": "Essentials data for gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive message": {
+      "main": [
+        [
+          {
+            "node": "Link check regex",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge final",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "62f295e7-b59a-41cd-8e65-875606532034",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bf9456e50bd32f6ef0c53d2c77279d5231dc9e00f6ff2ca59605d2d9d67307c6"
+  },
+  "id": "i5cSlU-Ebl9d831Iynmi0",
+  "tags": []
+}
