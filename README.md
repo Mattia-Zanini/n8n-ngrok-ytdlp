@@ -1,4 +1,4 @@
-# n8n-ngrok: Stack di Automazione Avanzato
+# n8n-ngrok-ytdlp: Stack di Automazione
 
 Questo repository offre una configurazione completa basata su **Docker Compose** per eseguire **n8n**, esposto in modo sicuro tramite **Ngrok**, e integrato con un **Python Worker** personalizzato. Questa architettura permette di gestire flussi di automazione complessi che richiedono l'esecuzione di script Python con dipendenze specifiche (come `yt-dlp`, `pandas`, `ffmpeg`) e la gestione avanzata dei cookie.
 
