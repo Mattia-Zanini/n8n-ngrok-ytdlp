@@ -137,7 +137,7 @@ Nella root del progetto trovi il file `yt_summarize_video.json`. Questo file con
 
 **Per usarlo:**
 1. Apri la tua istanza di n8n.
-2. Clicca su **Workflows** > **Import from File...** e seleziona `yt summarize video.json`.
+2. Clicca su **Workflows** > **Import from File...** e seleziona `yt_summarize_video.json`.
 3. **Nota bene**: Il workflow è sprovvisto di chiavi API e token. Dovrai configurare manualmente le credenziali per i nodi **Telegram Trigger/Node** e per il nodo **Google Gemini** (usando la tua API Key di Google AI Studio).
 
 ### Accedere a n8n
