@@ -58,7 +58,13 @@ mkdir -p shared_data
 ```
 
 ### 4. Configurazione Variabili d'Ambiente (`.env`)
-Crea un file `.env` nella root del progetto. Questo file **NON deve essere committato** se contiene dati reali. Copia il seguente template e compila i campi:
+Crea un file `.env` nella root del progetto partendo dal file di esempio:
+
+```bash
+cp env_sample .env
+```
+
+Questo file **NON deve essere committato** se contiene dati reali. Apri `.env` e compila i campi:
 
 ```bash
 # Imposta il tuo fuso orario
@@ -77,6 +83,12 @@ PYTHON_WORKER_API_KEY=genera_una_stringa_casuale_e_sicura
 ```
 
 ### 5. Configurazione Ngrok (`ngrok.yml`)
+Crea il file di configurazione per Ngrok partendo dall'esempio:
+
+```bash
+cp ngrok_sample.yml ngrok.yml
+```
+
 Modifica il file `ngrok.yml` per far corrispondere il dominio a quello inserito nel file `.env`.
 
 **Importante**: Assicurati di aver prenotato un dominio statico (gratuito o a pagamento) nella sezione "Cloud Edge > Domains" della dashboard di Ngrok.
@@ -98,8 +110,7 @@ Se i tuoi script Python (es. `yt-dlp`) necessitano di accedere a siti protetti o
 1.  Installa l'estensione **"Get cookies.txt LOCALLY"** (o simile) sul tuo browser (Chrome/Firefox).
 2.  Vai sul sito di interesse (es. YouTube) ed effettua il login.
 3.  Usa l'estensione per scaricare i cookie in formato Netscape/Mozilla.
-4.  Rinomina il file scaricato in `cookies.txt`.
-5.  Posizionalo nella cartella `python_worker/` del progetto.
+4.  Rinomina il file scaricato in **`cookies.txt`** e posizionalo nella cartella **`python_worker/`** del progetto.
 
 > **Nota**: Il file `python_worker/cookies.txt` viene montato automaticamente nel container alla posizione `/app/cookies.txt`.
 
