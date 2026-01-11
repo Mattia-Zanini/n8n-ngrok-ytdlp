@@ -29,10 +29,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        432,
-        128
+        -112,
+        368
       ],
-      "id": "65356c19-c29c-4845-9331-2abd12fd8c9d",
+      "id": "8add2c43-d32e-43e5-8d46-b9d4596c8707",
       "name": "If"
     },
     {
@@ -60,12 +60,13 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1104,
-        160
+        560,
+        400
       ],
-      "id": "e4f26cc2-37ec-4188-af39-36e66df4af89",
+      "id": "537dbb92-f654-4669-8f2e-ee243863d06a",
       "name": "POST python worker",
-      "executeOnce": true
+      "executeOnce": true,
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -75,10 +76,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        736,
-        112
+        192,
+        352
       ],
-      "id": "431e7561-58c1-4fd8-a4c5-2a58b27fb0ca",
+      "id": "a84c553a-3d15-4e5f-9a2d-879b181814b2",
       "name": "GET youtube oembed",
       "onError": "continueErrorOutput"
     },
@@ -89,11 +90,250 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        240,
-        -96
+        -304,
+        144
       ],
-      "id": "bb7eda06-7f30-4385-896b-18248706ee69",
+      "id": "5ec03147-5105-46c0-8fd4-b43d497834e9",
       "name": "Link check regex"
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.data.n8n_file_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        320
+      ],
+      "id": "62943275-8dc8-4ecd-a726-a4588528b498",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "dataTXT",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        304
+      ],
+      "id": "dc4fd38a-5f3b-4cdb-8a53-a621f0c1cb1a",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Potresti riassumermi in italiano questa trascrizione di un video youtube?\nInoltre il riassunto deve essere lungo al MASSIMO 3900 caratteri e non scrivere quanti caratteri hai utilizzato, basta solo che rispetti questo requisito.\n\nTitolo: {{ $json.title }}\nTrascrizione:\n{{ $json.dataTXT }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        112
+      ],
+      "id": "f662aeeb-4aa8-4ac5-942c-1eca300a8f57",
+      "name": "Message a model",
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "LB1mfhiXYsnfJF9o",
+          "name": "Google gemini mio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
+        "text": "=Titolo: {{ $('GET youtube oembed').item.json.title }}\n\n{{ $json.text.join('\\n\\n')\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\\*\\*(.*?)\\*\\*/g, '<b>$1</b>')\n  .replace(/\\*(.*?)\\*/g, '<i>$1</i>') \n}}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2480,
+        224
+      ],
+      "id": "ead2eeda-2231-432b-b360-c0b89e6ed5f4",
+      "name": "Send final response",
+      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ynsYd70PKmOb5Bbl",
+          "name": "yt summurize bot"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2256,
+        -112
+      ],
+      "id": "64114178-183f-4c48-a4ec-b4ca0a44c96c",
+      "name": "Merge final",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "content.parts[0].text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2064,
+        112
+      ],
+      "id": "7e2799b0-bd60-4086-9423-c9c56f98e052",
+      "name": "extract text"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "title"
+            },
+            {
+              "fieldToAggregate": "dataTXT"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        112
+      ],
+      "id": "4bedfaf9-6afc-40b6-915b-235bc7e3b2b7",
+      "name": "Essentials data for gemini"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1344,
+        112
+      ],
+      "id": "ca3edcf8-24b2-493f-b3c7-c5f952bda6d1",
+      "name": "Merge pre AI",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -544,
+        144
+      ],
+      "id": "473a401d-15ee-4b98-a28b-10c98aec715d",
+      "name": "Receive message",
+      "webhookId": "2904795c-b328-4b29-9e6f-8a4ac8476a06",
+      "credentials": {
+        "telegramApi": {
+          "id": "ynsYd70PKmOb5Bbl",
+          "name": "yt summurize bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "=rm  {{ $('POST python worker').item.json.data.n8n_file_path }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2688,
+        224
+      ],
+      "id": "879b0066-025f-454b-853a-5ae6622b03ab",
+      "name": "Delete transcription file"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
+        "text": "=ERRORE: formato link di youtube non corretto",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -128,
+        576
+      ],
+      "id": "cd40c74c-b86b-4914-85c2-204667280396",
+      "name": "Send error regex",
+      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ynsYd70PKmOb5Bbl",
+          "name": "yt summurize bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
+        "text": "=ERRORE: il video condiviso non è valido",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        576
+      ],
+      "id": "8fcd0269-8b35-40a2-bfc5-80fe70767b5a",
+      "name": "Send error video not valid",
+      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ynsYd70PKmOb5Bbl",
+          "name": "yt summurize bot"
+        }
+      }
     },
     {
       "parameters": {
@@ -102,11 +342,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1216,
-        -384
+        672,
+        -144
       ],
-      "id": "4e4fc32c-0364-4d5d-baf7-61ef42168739",
-      "name": "Response cleaning"
+      "id": "561b36d6-734a-4cf9-9696-2ada782b7fe7",
+      "name": "Response cleaning1"
     },
     {
       "parameters": {
@@ -133,241 +373,27 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        992,
-        -384
+        448,
+        -144
       ],
-      "id": "d3a2842f-9e02-4afb-bcc5-7f3ed8f8e0c7",
-      "name": "POST python worker test",
+      "id": "066b9819-6375-46ea-ab34-93326163d594",
+      "name": "POST python worker test1",
       "executeOnce": true
     },
     {
       "parameters": {
-        "fileSelector": "={{ $json.data.n8n_file_path }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1.1,
-      "position": [
-        1376,
-        80
-      ],
-      "id": "4612c77a-f997-410c-ae97-997dd20821a2",
-      "name": "Read/Write Files from Disk"
-    },
-    {
-      "parameters": {
-        "operation": "text",
-        "destinationKey": "dataTXT",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        1616,
-        64
-      ],
-      "id": "1dcc5d10-8423-47de-804c-8b6914b662be",
-      "name": "Extract from File"
-    },
-    {
-      "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "models/gemini-2.5-flash",
-          "mode": "list",
-          "cachedResultName": "models/gemini-2.5-flash"
-        },
-        "messages": {
-          "values": [
-            {
-              "content": "=Potresti riassumermi in italiano questa trascrizione di un video youtube?\n\nTitolo: {{ $json.title }}\nTrascrizione:\n{{ $json.dataTXT }}"
-            }
-          ]
-        },
-        "builtInTools": {},
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        2288,
-        -128
-      ],
-      "id": "89aa54ff-831e-41ad-a309-828e4e3a609d",
-      "name": "Message a model",
-      "executeOnce": true,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "LB1mfhiXYsnfJF9o",
-          "name": "Google gemini mio account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
-        "text": "={{ $json.text }}",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        3024,
-        -16
-      ],
-      "id": "10854ab1-cb47-4ab0-ab61-cdc8c5bda9a3",
-      "name": "Send final response",
-      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
-      "executeOnce": true,
-      "credentials": {
-        "telegramApi": {
-          "id": "ynsYd70PKmOb5Bbl",
-          "name": "yt summurize bot"
-        }
-      }
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        2800,
-        -352
-      ],
-      "id": "5deb7b03-8f7c-486e-a18b-56387bfe8797",
-      "name": "Merge final",
-      "alwaysOutputData": true,
-      "executeOnce": true
-    },
-    {
-      "parameters": {
-        "fieldsToAggregate": {
-          "fieldToAggregate": [
-            {
-              "fieldToAggregate": "content.parts[0].text"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        2608,
-        -128
-      ],
-      "id": "0c4d3558-3377-4509-a1cb-9b9552e2d5c2",
-      "name": "extract text"
-    },
-    {
-      "parameters": {
-        "fieldsToAggregate": {
-          "fieldToAggregate": [
-            {
-              "fieldToAggregate": "title"
-            },
-            {
-              "fieldToAggregate": "dataTXT"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        2064,
-        -128
-      ],
-      "id": "e0b9c5ec-9811-4788-94f7-6f44c602b610",
-      "name": "Essentials data for gemini"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1888,
-        -128
-      ],
-      "id": "9a6b10c2-2fee-4581-a311-756ae7a9378c",
-      "name": "Merge pre AI",
-      "alwaysOutputData": true,
-      "executeOnce": true
-    },
-    {
-      "parameters": {
-        "updates": [
-          "message"
-        ],
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.telegramTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        0,
-        -96
-      ],
-      "id": "e3b85107-5032-4a2a-b61a-ce679abda93b",
-      "name": "Receive message",
-      "webhookId": "2904795c-b328-4b29-9e6f-8a4ac8476a06",
-      "credentials": {
-        "telegramApi": {
-          "id": "ynsYd70PKmOb5Bbl",
-          "name": "yt summurize bot"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "command": "=rm  {{ $('POST python worker').item.json.data.n8n_file_path }}"
-      },
-      "type": "n8n-nodes-base.executeCommand",
-      "typeVersion": 1,
-      "position": [
-        3232,
-        -16
-      ],
-      "id": "6bd7781a-ee56-450e-9e2b-8fb608070a34",
-      "name": "Delete transcription file"
-    },
-    {
-      "parameters": {
-        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
-        "text": "=ERRORE: formato link di youtube non corretto",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        416,
-        336
-      ],
-      "id": "18cf8714-f9e6-483a-a3fa-dd2ee590324b",
-      "name": "Send error regex",
-      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
-      "executeOnce": true,
-      "credentials": {
-        "telegramApi": {
-          "id": "ynsYd70PKmOb5Bbl",
-          "name": "yt summurize bot"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
-        "text": "=ERRORE: il video condiviso non è valido",
+        "text": "=ERRORE: errore con il download della trascrizione del video",
         "additionalFields": {}
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
         816,
-        336
+        576
       ],
-      "id": "10e1ebb9-07bd-434b-ba8d-fc03a4b21dc8",
-      "name": "Send error video not valid",
+      "id": "89d10ec8-c272-4ee6-a713-7a2dc452a73e",
+      "name": "Send error yt-dlp transciption download",
       "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
       "executeOnce": true,
       "credentials": {
@@ -437,6 +463,13 @@
         [
           {
             "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send error yt-dlp transciption download",
             "type": "main",
             "index": 0
           }
@@ -555,7 +588,7 @@
     "timeSavedMode": "fixed",
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "62f295e7-b59a-41cd-8e65-875606532034",
+  "versionId": "0b415149-8c58-44f8-8d53-9e0e8b5f2ed3",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "bf9456e50bd32f6ef0c53d2c77279d5231dc9e00f6ff2ca59605d2d9d67307c6"
