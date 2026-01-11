@@ -216,3 +216,9 @@ Se provando ad accedere al tuo dominio Ngrok (es. `https://xxx.ngrok-free.app`) 
 
 1.  **Controlla il Router o il DNS**: Alcuni fornitori di servizi internet o router con protezioni di sicurezza attive (es. "Navigazione Sicura") potrebbero bloccare i domini gratuiti di Ngrok (`.ngrok-free.app`) ritenendoli potenzialmente rischiosi.
 2.  **Verifica**: Prova a cambiare momentaneamente i DNS (es. usando 8.8.8.8 di Google) o a disattivare i filtri di protezione del router per isolare il problema.
+
+---
+
+## 📜 Licenza
+
+Questo progetto è distribuito sotto la licenza **MIT**. Consulta il file `LICENSE` per maggiori dettagli.
