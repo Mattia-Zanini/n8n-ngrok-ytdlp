@@ -1,1 +1,0 @@
-Utilizza l'estensione "GET cookies LOCALHOST.txt" su YouTube nel tuo browser e fai "Export As" e rinomina il file come "cookies.txt"
