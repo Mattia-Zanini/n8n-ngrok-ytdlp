@@ -31,7 +31,7 @@ In questo setup, Ngrok svolge due funzioni fondamentali:
 1.  **Accesso Remoto**: Ti permette di accedere all'interfaccia di n8n da qualsiasi dispositivo tramite un dominio pubblico, liberandoti dal vincolo di usare `localhost` sulla macchina che ospita i container.
 2.  **Test dei Webhook (es. Telegram)**: Molti servizi (come Telegram) richiedono tassativamente un URL **HTTPS** pubblico valido per inviare dati ai webhook. Senza un tunnel come Ngrok, i **Trigger** di test nell'editor di n8n non funzionerebbero, rendendo impossibile lo sviluppo dei flussi.
 
-> **Nota**: Una volta terminata la fase di configurazione e test, se non hai necessità di ricevere webhook dall'esterno o di accedere a n8n da remoto, puoi tranquillamente rimuovere il servizio Ngrok dal `docker-compose.yaml`; il resto dello stack continuerà a funzionare in locale.
+> **Nota**: Una volta terminata la fase di configurazione e test, se non hai necessità di ricevere webhook dall'esterno o di accedere a n8n da remoto, puoi tranquillamente rimuovere il servizio Ngrok dal `docker-compose.yaml`; il resto dello stack continuerà a funzionare.
 
 ---
 
