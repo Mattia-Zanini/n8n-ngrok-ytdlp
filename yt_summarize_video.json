@@ -154,7 +154,7 @@
       "executeOnce": true,
       "credentials": {
         "googlePalmApi": {
-          "id": "YOUR_GOOGLE_API_CREDENTIAL_ID",
+          "id": "LB1mfhiXYsnfJF9o",
           "name": "Google Gemini Credential"
         }
       }
@@ -179,7 +179,7 @@
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
+          "id": "ynsYd70PKmOb5Bbl",
           "name": "Telegram Bot Credential"
         }
       }
