@@ -1,0 +1,12 @@
+# macOS system files
+.DS_Store
+**/.DS_Store
+
+# Sensitive environment variables
+.env
+
+# Ngrok configuration (contains potential tokens/domain info)
+ngrok.yml
+
+# Authentication cookies
+python_worker/cookies.txt
