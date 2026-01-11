@@ -129,7 +129,7 @@ docker-compose down
 ## 💡 Utilizzo
 
 ### Workflow n8n Preconfigurato
-Nella root del progetto trovi il file `yt summarize video.json`. Questo file contiene un workflow di n8n già configurato per:
+Nella root del progetto trovi il file `yt_summarize_video.json`. Questo file contiene un workflow di n8n già configurato per:
 1. Ricevere un link YouTube da un bot Telegram.
 2. Estrarre i sottotitoli tramite il Python Worker.
 3. Riassumere il contenuto utilizzando Google Gemini.
