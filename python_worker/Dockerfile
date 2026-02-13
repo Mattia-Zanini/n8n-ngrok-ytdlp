@@ -31,3 +31,5 @@ USER workeruser
 
 EXPOSE 5000
 CMD ["python", "main.py"]
+
+

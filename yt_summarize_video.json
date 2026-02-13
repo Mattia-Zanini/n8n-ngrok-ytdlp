@@ -48,7 +48,7 @@
             },
             {
               "name": "X-API-KEY",
-              "value": "YOUR_PYTHON_WORKER_API_KEY"
+              "value": "insert_key_here"
             }
           ]
         },
@@ -154,15 +154,15 @@
       "executeOnce": true,
       "credentials": {
         "googlePalmApi": {
-          "id": "LB1mfhiXYsnfJF9o",
-          "name": "Google Gemini Credential"
+          "id": "cMUBzFPv4CpKSyHm",
+          "name": "Google mio account"
         }
       }
     },
     {
       "parameters": {
-        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
-        "text": "=Titolo: {{ $('GET youtube oembed').item.json.title }}\n\n{{ $json.text.join('\\n\\n')\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\\*\\*(.*?)\\*\\*/g, '<b>$1</b>')\n  .replace(/\\*(.*?)\\*/g, '<i>$1</i>') \n}}",
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "=Titolo: {{ $json.video_title }}\n\n{{ $json.chunk_content\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\\*\\*(.*?)\\*\\*/g, '<b>$1</b>')\n  .replace(/\\*(.*?)\\*/g, '<i>$1</i>') \n}}",
         "additionalFields": {
           "parse_mode": "HTML"
         }
@@ -170,17 +170,17 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        2032,
-        368
+        2336,
+        32
       ],
       "id": "36752ac9-ccfc-43a3-bdfd-e79a79ea1060",
       "name": "Send final response",
       "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
-      "executeOnce": true,
+      "executeOnce": false,
       "credentials": {
         "telegramApi": {
-          "id": "ynsYd70PKmOb5Bbl",
-          "name": "Telegram Bot Credential"
+          "id": "BxcEow1owMeOQikf",
+          "name": "Telegram bot yt sum"
         }
       }
     },
@@ -271,20 +271,20 @@
       "webhookId": "2904795c-b328-4b29-9e6f-8a4ac8476a06",
       "credentials": {
         "telegramApi": {
-          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
-          "name": "Telegram Bot Credential"
+          "id": "BxcEow1owMeOQikf",
+          "name": "Telegram bot yt sum"
         }
       }
     },
     {
       "parameters": {
-        "command": "=rm  {{ $('POST python worker').item.json.data.n8n_file_path }}"
+        "command": "=rm  {{ $('POST python worker').first().json.data.n8n_file_path }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        2240,
-        368
+        2624,
+        32
       ],
       "id": "897d4101-c63f-408a-974a-336c09ed537e",
       "name": "Delete transcription file"
@@ -307,8 +307,8 @@
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
-          "name": "Telegram Bot Credential"
+          "id": "BxcEow1owMeOQikf",
+          "name": "Telegram bot yt sum"
         }
       }
     },
@@ -330,8 +330,8 @@
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
-          "name": "Telegram Bot Credential"
+          "id": "BxcEow1owMeOQikf",
+          "name": "Telegram bot yt sum"
         }
       }
     },
@@ -361,7 +361,7 @@
             },
             {
               "name": "X-API-KEY",
-              "value": "YOUR_PYTHON_WORKER_API_KEY"
+              "value": "insert_key_here"
             }
           ]
         },
@@ -389,8 +389,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        448,
-        688
+        384,
+        720
       ],
       "id": "d5bad677-f642-40cf-bba5-5f2e867d12f3",
       "name": "Send error yt-dlp transciption download",
@@ -398,8 +398,8 @@
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
-          "name": "Telegram Bot Credential"
+          "id": "BxcEow1owMeOQikf",
+          "name": "Telegram bot yt sum"
         }
       }
     },
@@ -410,8 +410,8 @@
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
       "position": [
-        384,
-        928
+        624,
+        720
       ],
       "id": "1584ffb1-204a-47e5-96aa-1c3dc6e7483b",
       "name": "Stop and Error"
@@ -429,6 +429,19 @@
       "id": "89afc4da-4b32-4976-883e-871d6166b150",
       "name": "Wait",
       "webhookId": "9d03a7a8-bbb0-4983-a5b1-de58de5d0118"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- CONFIGURAZIONE ---\nconst maxChars = 3800;    // Limite massimo di caratteri per singolo messaggio Telegram\nconst maxBlocks = 5;      // Numero massimo di messaggi (blocchi) da generare\nconst minThreshold = 3000; // Se il punto è prima di questa soglia, preferisce tagliare alla parola\n\n// --- RECUPERO INPUT ---\n// Prende il testo dal primo elemento dell'input (array di stringhe)\nconst fullText = $input.all()[0].json.text[0];\n// Prende l'intero oggetto Telegram dal secondo elemento per non perdere i metadati\nconst telegramFullData = $input.all()[1].json;\nconst ytTitle = $(\"GET youtube oembed\").first().json.title; // Nodo NON collegato direttamente\n\nlet blocks = [];\nlet currentPos = 0;\n\n// --- LOGICA DI SUDDIVISIONE ---\nfor (let i = 0; i < maxBlocks; i++) {\n  if (currentPos >= fullText.length) break; // Esci se il testo è finito\n\n  let endPos = currentPos + maxChars;\n\n  // Se il testo rimanente supera il limite, dobbiamo calcolare dove tagliare\n  if (endPos < fullText.length) {\n    \n    // 1. Cerca l'ultima fine di una frase (\". \" o punto e a capo)\n    let lastPoint = fullText.lastIndexOf('. ', endPos);\n    if (lastPoint === -1 || lastPoint <= currentPos) {\n        lastPoint = fullText.lastIndexOf('.\\n', endPos);\n    }\n\n    let foundGoodSentenceSplit = false;\n\n    // Se trova un punto, verifica se il blocco è abbastanza lungo (efficienza)\n    if (lastPoint > currentPos) {\n      let chunkLength = lastPoint - currentPos + 1;\n      if (chunkLength >= minThreshold) {\n        endPos = lastPoint + 1; // Taglio impostato al punto\n        foundGoodSentenceSplit = true;\n      }\n    }\n\n    // 2. FALLBACK: Se non c'è un punto o è troppo lontano, taglia all'ultimo spazio (parola intera)\n    if (!foundGoodSentenceSplit) {\n      const lastSpace = fullText.lastIndexOf(' ', endPos);\n      if (lastSpace > currentPos) {\n        endPos = lastSpace;\n      }\n    }\n  }\n\n  // Estrae il pezzo di testo e rimuove spazi inutili ai bordi\n  const chunk = fullText.substring(currentPos, endPos).trim();\n  \n  if (chunk.length > 0) {\n    // Crea l'output unendo i dati originali di Telegram con il nuovo contenuto del chunk\n    blocks.push({\n      ...telegramFullData,\n      chunk_content: chunk,\n      video_title: ytTitle, // titolo del video\n      block_index: i + 1\n    });\n  }\n\n  // Sposta l'indice di partenza per il prossimo blocco\n  currentPos = endPos;\n}\n\nreturn blocks;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        32
+      ],
+      "id": "833e56de-8aa0-4d51-b7b7-c41bda499cc0",
+      "name": "Text to Chunks"
     }
   ],
   "pinData": {},
@@ -499,11 +512,6 @@
             "node": "Send error yt-dlp transciption download",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Stop and Error",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -556,7 +564,7 @@
       "main": [
         [
           {
-            "node": "Send final response",
+            "node": "Text to Chunks",
             "type": "main",
             "index": 0
           }
@@ -622,6 +630,28 @@
           }
         ]
       ]
+    },
+    "Send error yt-dlp transciption download": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to Chunks": {
+      "main": [
+        [
+          {
+            "node": "Send final response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -629,7 +659,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "8ffaa6bc-9510-474a-a815-a6d30eb3432d",
+  "versionId": "a548f594-3667-4965-9178-4b9b0113dabd",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "3b97b21f911e43c870f4e3cb7b1de9fa375c3bc9dcbcf7519247122d76d3d3e5"
