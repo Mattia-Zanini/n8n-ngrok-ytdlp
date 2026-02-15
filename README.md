@@ -1,97 +1,134 @@
-# n8n-ngrok-ytdlp: Stack di Automazione
+# n8n-ngrok-ytdlp: Automation Stack
 
-Questo repository offre una configurazione completa basata su **Docker Compose** per eseguire **n8n**, esposto in modo sicuro tramite **Ngrok**, e integrato con un **Python Worker** personalizzato. Questa architettura permette di gestire flussi di automazione complessi che richiedono l'esecuzione di script Python con dipendenze specifiche (come `yt-dlp`, `pandas`, `ffmpeg`) e la gestione avanzata dei cookie.
+This repository provides a complete configuration based on **Docker Compose** to
+run **n8n**, exposed via **Ngrok**, and integrated with a custom **Python
+Worker**. This architecture allows managing complex automation flows that
+require executing Python scripts with specific dependencies (like `yt-dlp`,
+`pandas`, `ffmpeg`) and advanced cookie management.
 
-## 📂 Tour del Progetto
+## 📂 Project Tour
 
-Ecco come è strutturato il progetto e a cosa serve ogni componente:
+Here's how the project is structured and what each component is for:
 
-*   **`docker-compose.yaml`**: Il file principale che orchestra i tre servizi:
-    *   `n8n`: Il motore di automazione.
-        *   *Nota*: La variabile `NODES_EXCLUDE=[]` viene usata per assicurarsi che nessun nodo predefinito di n8n sia disabilitato. Se volessi nascondere alcuni nodi, potresti elencarli qui.
-    *   `ngrok`: Il tunnel che rende n8n accessibile dall'esterno (necessario per ricevere webhook).
-    *   `python_worker`: Un servizio Flask personalizzato per eseguire script Python.
-*   **`.env`**: Il file (da creare) che custodisce tutte le configurazioni sensibili e le variabili d'ambiente.
-*   **`ngrok.yml`**: File di configurazione specifico per il tunnel Ngrok.
-*   **`python_worker/`**: Cartella dedicata al worker Python.
-    *   `Dockerfile`: Definisce l'ambiente del worker (Python, Node.js, ffmpeg, ecc.).
-    *   `main.py`: L'applicazione Flask che riceve le richieste da n8n ed esegue gli script.
-    *   `requirements.txt`: Le librerie Python installate.
-    *   `cookies.txt`: File (da generare) necessario per autenticare script come `yt-dlp` su siti che richiedono login.
-    *   `scripts/`: Dove posizionare i tuoi script Python `.py`.
-*   **`shared_data/`**: Un volume condiviso montato sia su n8n che sul Python Worker. Utile per passare file scaricati o elaborati da un servizio all'altro.
-    *   **Nota**: Attenzione, al momento potrebbero rimanere dei file nascosti (che iniziano con `.`) all'interno di questa cartella tra una trascrizione e l'altra.
+- **`docker-compose.yaml`**: The main file that orchestrates the three services:
+  - `n8n`: The automation engine.
+    - _Note_: The `NODES_EXCLUDE=[]` variable is used to ensure that no default
+      n8n nodes are disabled. If you want to hide some nodes, you can list them
+      here.
+  - `ngrok`: The tunnel that makes n8n accessible from the outside (necessary
+    for receiving webhooks).
+  - `python_worker`: A custom Flask service for executing Python scripts.
+- **`.env`**: The file (to be created) that stores all sensitive configurations
+  and environment variables.
+- **`ngrok.yml`**: Specific configuration file for the Ngrok tunnel.
+- **`python_worker/`**: Folder dedicated to the Python worker.
+  - `Dockerfile`: Defines the worker's environment (Python, Node.js, ffmpeg,
+    etc.).
+  - `main.py`: The Flask application that receives requests from n8n and
+    executes scripts.
+  - `requirements.txt`: The installed Python libraries.
+  - `cookies.txt`: File (to be generated) required to authenticate scripts like
+    `yt-dlp` on sites that require login.
+  - `scripts/`: Where to place your Python `.py` scripts.
+- **`shared_data/`**: A shared volume mounted on both n8n and the Python Worker.
+  Useful for passing downloaded or processed files from one service to another.
+  - **Note**: Be careful, currently some hidden files (starting with `.`) might
+    remain inside this folder between transcriptions.
 
 ---
 
-## 🌍 Perché Ngrok?
+## 🌍 Why Ngrok?
 
-In questo setup, Ngrok svolge due funzioni fondamentali:
+In this setup, Ngrok performs two fundamental functions:
 
-1.  **Accesso Remoto**: Ti permette di accedere all'interfaccia di n8n da qualsiasi dispositivo tramite un dominio pubblico, liberandoti dal vincolo di usare `localhost` sulla macchina che ospita i container.
-2.  **Test dei Webhook (es. Telegram)**: Molti servizi (come Telegram) richiedono tassativamente un URL **HTTPS** pubblico valido per inviare dati ai webhook. Senza un tunnel come Ngrok, i **Trigger** di test nell'editor di n8n non funzionerebbero, rendendo impossibile lo sviluppo dei flussi.
+1. **Remote Access**: It allows you to access the n8n interface from any device
+   via a public domain, freeing you from the constraint of using `localhost` on
+   the machine hosting the containers.
+2. **Webhook Testing (e.g., Telegram)**: Many services (like Telegram) strictly
+   require a valid public **HTTPS** URL to send data to webhooks. Without a
+   tunnel like Ngrok, test **Triggers** in the n8n editor would not work, making
+   workflow development impossible.
 
-> **Nota**: Una volta terminata la fase di configurazione e test, se non hai necessità di ricevere webhook dall'esterno o di accedere a n8n da remoto, puoi tranquillamente rimuovere il servizio Ngrok dal `docker-compose.yaml`; il resto dello stack continuerà a funzionare.
+> **Note**: Once the configuration and testing phase is complete, if you don't
+> need to receive external webhooks or access n8n remotely, you can safely
+> remove the Ngrok service from `docker-compose.yaml`; the rest of the stack
+> will continue to function.
 
 ---
 
-## 🚀 Guida all'Installazione e Configurazione
+## 🚀 Installation and Configuration Guide
 
-Segui questi passaggi per configurare il progetto con le tue credenziali.
+Follow these steps to configure the project with your credentials.
 
-### 1. Prerequisiti
-Assicurati di avere installato:
-*   [Docker](https://docs.docker.com/get-docker/)
-*   [Docker Compose](https://docs.docker.com/compose/install/)
+### 1. Prerequisites
 
-### 2. Clona il Repository
+Make sure you have installed:
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+### 2. Clone the Repository
+
 ```bash
-git clone <URL_DEL_REPOSITORY>
+git clone <REPOSITORY_URL>
 cd n8n-ngrok
 ```
 
-### 3. Creazione Cartella Condivisa (`shared_data`)
-Sebbene Docker Compose possa creare automaticamente i volumi, è **fortemente consigliato** creare manualmente la cartella `shared_data` prima dell'avvio. Questo garantisce che la cartella abbia i permessi corretti per il tuo utente, permettendo a n8n (che gira come utente non-root) di scriverci senza errori di permessi.
+### 3. Create Shared Folder (`shared_data`)
+
+Although Docker Compose can automatically create volumes, it is **strongly
+recommended** to manually create the `shared_data` folder before starting. This
+ensures that the folder has the correct permissions for your user, allowing n8n
+(which runs as a non-root user) to write to it without permission errors.
 
 ```bash
 mkdir -p shared_data
 ```
 
-### 4. Configurazione Variabili d'Ambiente (`.env`)
-Crea un file `.env` nella root del progetto partendo dal file di esempio:
+### 4. Configure Environment Variables (`.env`)
+
+Create a `.env` file in the project root based on the example file:
 
 ```bash
 cp env_sample .env
 ```
 
-Questo file **NON deve essere committato** se contiene dati reali. Apri `.env` e compila i campi:
+This file **SHOULD NOT be committed** if it contains real data. Open `.env` and
+fill in the fields:
 
 ```bash
-# Imposta il tuo fuso orario
+# Set your timezone
 TIMEZONE=Europe/Rome
 
-# Il tuo Authtoken di Ngrok (dalla dashboard di Ngrok)
-NGROK_TOKEN=inserisci_qui_il_tuo_token_ngrok_segreto
+# Your Ngrok Authtoken (from the Ngrok dashboard)
+NGROK_TOKEN=insert_your_secret_ngrok_token_here
 
-# L'URL del dominio statico che hai prenotato su Ngrok
-# Esempio: https://mio-dominio.ngrok-free.app
-URL=https://inserisci-il-tuo-dominio.ngrok-free.app
+# The URL of the static domain you reserved on Ngrok
+# Example: https://my-domain.ngrok-free.app
+URL=https://insert-your-domain.ngrok-free.app
 
-# Una chiave segreta a tua scelta per proteggere l'API del Python Worker
-# Generane una lunga e complessa. n8n dovrà usare questa chiave nell'header delle richieste.
-PYTHON_WORKER_API_KEY=genera_una_stringa_casuale_e_sicura
+# A secret key of your choice to protect the Python Worker API
+# Generate a long and complex one. n8n will need to use this key in the request header.
+PYTHON_WORKER_API_KEY=generate_a_random_and_secure_string
+
+# Actually, the API key for the Python server is not necessary at all.
+# One can remove it by modifying the Python server code. However, I decided
+# to include it anyway, thinking that someone might find it useful or pleasant
+# perhaps if used in specific environments where it is required.
 ```
 
-### 5. Configurazione Ngrok (`ngrok.yml`)
-Crea il file di configurazione per Ngrok partendo dall'esempio:
+### 5. Configure Ngrok (`ngrok.yml`)
+
+Create the configuration file for Ngrok based on the example:
 
 ```bash
 cp ngrok_sample.yml ngrok.yml
 ```
 
-Modifica il file `ngrok.yml` per far corrispondere il dominio a quello inserito nel file `.env`.
+Edit the `ngrok.yml` file to match the domain entered in the `.env` file.
 
-**Importante**: Assicurati di aver prenotato un dominio statico (gratuito o a pagamento) nella sezione "Cloud Edge > Domains" della dashboard di Ngrok.
+**Important**: Make sure you have reserved a static domain (free or paid) in the
+"Cloud Edge > Domains" section of the Ngrok dashboard.
 
 ```yaml
 version: 2
@@ -100,136 +137,196 @@ tunnels:
     n8n:
         proto: http
         addr: n8n:5678
-        # DEVE corrispondere al dominio nel file .env (senza https://)
-        domain: inserisci-il-tuo-dominio.ngrok-free.app
+        # MUST match the domain in the .env file (without https://)
+        domain: insert-your-domain.ngrok-free.app
 ```
 
-### 6. Configurazione Cookie per Python Worker
-Se i tuoi script Python (es. `yt-dlp`) necessitano di accedere a siti protetti o verificare l'identità (come YouTube, Instagram, ecc.), devi fornire i cookie.
+### 6. Configure Cookies for Python Worker
 
-1.  Installa l'estensione **"Get cookies.txt LOCALLY"** (o simile) sul tuo browser (Chrome/Firefox).
-2.  Vai sul sito di interesse (es. YouTube) ed effettua il login.
-3.  Usa l'estensione per scaricare i cookie in formato Netscape/Mozilla.
-4.  Rinomina il file scaricato in **`cookies.txt`** e posizionalo nella cartella **`python_worker/`** del progetto.
+If your Python scripts (e.g., `yt-dlp`) need to access protected sites or verify
+identity (like YouTube, Instagram, etc.), you must provide cookies.
 
-> **Nota**: Il file `python_worker/cookies.txt` viene montato automaticamente nel container alla posizione `/app/cookies.txt`.
+1. Install the **"Get cookies.txt LOCALLY"** (or similar) extension on your
+   browser (Chrome/Firefox).
+2. Go to the site of interest (e.g., YouTube) and log in.
+3. Use the extension to download cookies in Netscape/Mozilla format.
+4. Rename the downloaded file to **`cookies.txt`** and place it in the
+   **`python_worker/`** folder of the project.
+
+> **Note**: The `python_worker/cookies.txt` file is automatically mounted in the
+> container at `/app/cookies.txt`.
 
 ---
 
-## ▶️ Avvio del Progetto
+## ▶️ Project Startup
 
-Una volta configurato tutto, avvia lo stack:
+Once everything is configured, start the stack:
 
 ```bash
 docker-compose up -d
 ```
-L'opzione `-d` avvia i container in background.
 
-Per vedere i log (utile per il debug):
+The `-d` option starts the containers in the background.
+
+To view logs (useful for debugging):
+
 ```bash
 docker-compose logs -f
 ```
 
-Per fermare tutto:
+To stop everything:
+
 ```bash
 docker-compose down
 ```
 
 ---
 
-## 💡 Utilizzo
+## ℹ️ Info
 
-### Workflow n8n Preconfigurato
-Nella root del progetto trovi il file `yt_summarize_video.json`. Questo file contiene un workflow di n8n già configurato per:
-1. Ricevere un link YouTube da un bot Telegram.
-2. Estrarre i sottotitoli tramite il Python Worker.
-3. Riassumere il contenuto utilizzando Google Gemini.
-4. Inviare il riassunto all'utente.
+- All Telegram messages and the Gemini prompt are in Italian (go change them if
+  u need)
+- Telegram messages are sent in chunks of maximum 3800 characters, with a
+  maximum of 5 chunks (considered sufficient for "summarizing").
+- A Telegram message is sent if there's a "probable" exceeding of the API key
+  limit (the error is not literally handled, but if an error is detected by
+  Gemini, this message will appear).
+- Gemini's temperature updated to = 0.9.
+- Chunks do not truncate Gemini's output message but try to cut based on
+  sentences (using the dot '.' as a separator) with a minimum threshold of 3000
+  characters; if not respected, it falls back to separating the message by
+  complete words (nothing is ever truncated!).
 
-**Per usarlo:**
-1. Apri la tua istanza di n8n.
-2. Clicca su **Workflows** > **Import from File...** e seleziona `yt_summarize_video.json`.
-3. **Nota bene**: Il workflow è sprovvisto di chiavi API e token. Dovrai configurare manualmente le credenziali per i nodi **Telegram Trigger/Node** e per il nodo **Google Gemini** (usando la tua API Key di Google AI Studio).
+---
 
-### Accedere a n8n
-Apri il browser e vai all'URL che hai configurato (es. `https://mio-dominio.ngrok-free.app`). Dovresti vedere l'interfaccia di n8n.
+## 💡 Usage
 
-### Usare il Python Worker da n8n
-Per eseguire uno script Python da un workflow di n8n:
+### Pre-configured n8n Workflow
 
-1.  Aggiungi un nodo **HTTP Request**.
-2.  **Method**: `POST`
-3.  **URL**: `http://python_worker:5000/run` (nota: usiamo il nome del servizio Docker `python_worker` come hostname).
-4.  **Headers**:
-    *   Name: `X-API-KEY`
-    *   Value: `LaTuaChiaveSegretaDefinitaInEnv` (puoi usare un'espressione n8n `{{ $env.PYTHON_WORKER_API_KEY }}` se la rendi disponibile a n8n, altrimenti scrivila direttamente).
-5.  **Body Parameters** (JSON):
-    ```json
-    {
-      "script": "nome_dello_script.py",
-      "args": ["argomento1", "argomento2"]
-    }
-    ```
-    *   `script`: Il nome del file presente in `python_worker/scripts/`.
-    *   `args`: Una lista di argomenti da passare allo script.
+In the project root, you'll find the `yt_summarize_video.json` file. This file
+contains an n8n workflow already configured to:
 
-### Esempio di Script
-Assicurati che il tuo script in `python_worker/scripts/` stampi il risultato in JSON su `stdout` se vuoi recuperarlo strutturato in n8n.
+1. Receive a YouTube link from a Telegram bot.
+2. Extract subtitles via the Python Worker.
+3. Summarize the content using Google Gemini.
+4. Send the summary to the user.
 
-### 📝 Esempi Pratici per gli Script Inclusi
+**To use it:**
 
-Ecco come configurare il nodo **HTTP Request** di n8n per utilizzare gli script già presenti nella cartella `scripts/`.
+1. Open your n8n instance.
+2. Click on **Workflows** > **Import from File...** and select
+   `yt_summarize_video.json`.
+3. **Please note**: The workflow is without API keys and tokens. You will need
+   to manually configure the credentials for the **Telegram Trigger/Node** and
+   for the **Google Gemini** node (using your Google AI Studio API Key).
 
-#### 1. Eseguire `test_script.py`
-Questo script prende due argomenti (Nome e Cognome) e restituisce un saluto.
+### Accessing n8n
 
-*   **URL**: `http://python_worker:5000/run`
-*   **Method**: `POST`
-*   **Body**:
-    ```json
-    {
+Open your browser and go to the URL you configured (e.g.,
+`https://my-domain.ngrok-free.app`). You should see the n8n interface.
+
+### Using the Python Worker from n8n
+
+To execute a Python script from an n8n workflow:
+
+1. Add an **HTTP Request** node.
+2. **Method**: `POST`
+3. **URL**: `http://python_worker:5000/run` (note: we use the Docker service
+   name `python_worker` as the hostname).
+4. **Headers**:
+   - Name: `X-API-KEY`
+   - Value: `YourSecretKeyDefinedInEnv` (you can use an n8n expression
+     `{{ $env.PYTHON_WORKER_API_KEY }}` if you make it available to n8n,
+     otherwise write it directly).
+5. **Body Parameters** (JSON):
+   ```json
+   {
+       "script": "script_name.py",
+       "args": ["argument1", "argument2"]
+   }
+   ```
+   - `script`: The name of the file in `python_worker/scripts/`.
+   - `args`: A list of arguments to pass to the script.
+
+### Script Example
+
+Make sure your script in `python_worker/scripts/` prints the result in JSON to
+`stdout` if you want to retrieve it structured in n8n.
+
+### 📝 Practical Examples for Included Scripts
+
+Here's how to configure the n8n **HTTP Request** node to use the scripts already
+present in the `scripts/` folder.
+
+#### 1. Execute `test_script.py`
+
+This script takes two arguments (Name and Surname) and returns a greeting.
+
+- **URL**: `http://python_worker:5000/run`
+- **Method**: `POST`
+- **Body**:
+  ```json
+  {
       "script": "test_script.py",
       "args": ["Mario", "Rossi"]
-    }
-    ```
-*   **Risultato atteso**: Un oggetto JSON con un messaggio di saluto.
+  }
+  ```
+- **Expected result**: A JSON object with a greeting message.
 
-#### 2. Eseguire `get_subs.py`
-Questo script scarica i sottotitoli di un video YouTube utilizzando `yt-dlp` (e i cookie se configurati).
+#### 2. Execute `get_subs.py`
 
-*   **URL**: `http://python_worker:5000/run`
-*   **Method**: `POST`
-*   **Body**:
-    ```json
-    {
+This script downloads subtitles for a YouTube video using `yt-dlp` (and cookies
+if configured).
+
+- **URL**: `http://python_worker:5000/run`
+- **Method**: `POST`
+- **Body**:
+  ```json
+  {
       "script": "get_subs.py",
       "args": ["https://www.youtube.com/watch?v=VIDEO_ID"]
-    }
-    ```
-*   **Risultato atteso**: Un JSON contenente il percorso del file `.srt` scaricato nel volume condiviso.
-    *   Nota: Il file verrà salvato in `/data` (lato worker) che corrisponde a `/home/node/.n8n-files` (lato n8n).
+  }
+  ```
+- **Expected result**: A JSON containing the path to the `.srt` file downloaded
+  in the shared volume.
+  - Note: The file will be saved in `/data` (worker side) which corresponds to
+    `/home/node/.n8n-files` (n8n side).
 
-## ⚠️ Sicurezza
-*   Non committare mai il file `.env` o `python_worker/cookies.txt` in repository pubblici.
-*   La `PYTHON_WORKER_API_KEY` impedisce chiamate non autorizzate al tuo worker, ma dato che è una rete interna Docker, il rischio è controllato. Tuttavia, è buona norma mantenerla.
+## ⚠️ Security
 
-## 🛠️ Strumenti Consigliati
+- Never commit the `.env` file or `python_worker/cookies.txt` to public
+  repositories.
+- The `PYTHON_WORKER_API_KEY` prevents unauthorized calls to your worker, but
+  since it's an internal Docker network, the risk is controlled. However, it's
+  good practice to keep it.
+
+## 🛠️ Recommended Tools
 
 ### Lazydocker
-Per gestire i container in modo più semplice e visuale da terminale, ti consiglio vivamente l'uso di [lazydocker](https://github.com/jesseduffield/lazydocker). Ti permette di vedere log, stato dei container e statistiche di consumo risorse senza dover ricordare i comandi Docker.
+
+To manage containers more easily and visually from the terminal, I highly
+recommend using [lazydocker](https://github.com/jesseduffield/lazydocker). It
+allows you to see logs, container status, and resource consumption statistics
+without having to remember Docker commands.
 
 ---
 
-## 🔧 Risoluzione Problemi Comuni
+## 🔧 Common Troubleshooting
 
-### 🚫 Il dominio Ngrok non è raggiungibile o viene bloccato
-Se provando ad accedere al tuo dominio Ngrok (es. `https://xxx.ngrok-free.app`) riscontri errori di connessione, timeout o avvisi di sicurezza:
+### 🚫 Ngrok domain unreachable or blocked
 
-1.  **Controlla il Router o il DNS**: Alcuni fornitori di servizi internet o router con protezioni di sicurezza attive (es. "Navigazione Sicura") potrebbero bloccare i domini gratuiti di Ngrok (`.ngrok-free.app`) ritenendoli potenzialmente rischiosi.
-2.  **Verifica**: Prova a cambiare momentaneamente i DNS (es. usando 8.8.8.8 di Google) o a disattivare i filtri di protezione del router per isolare il problema.
+If you encounter connection errors, timeouts, or security warnings when trying
+to access your Ngrok domain (e.g., `https://xxx.ngrok-free.app`):
+
+1. **Check Router or DNS**: Some internet service providers or routers with
+   active security protections (e.g., "Safe Browsing") might block free Ngrok
+   domains (`.ngrok-free.app`) considering them potentially risky.
+2. **Verify**: Try temporarily changing the DNS (e.g., using Google's 8.8.8.8)
+   or disabling router protection filters to isolate the problem.
 
 ---
 
-## 📜 Licenza
+## 📜 License
 
-Questo progetto è distribuito sotto la licenza **MIT**. Consulta il file `LICENSE` per maggiori dettagli.
+This project is distributed under the **MIT** license. Consult the `LICENSE`
+file for more details.
