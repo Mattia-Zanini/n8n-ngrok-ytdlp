@@ -136,12 +136,14 @@
         "messages": {
           "values": [
             {
-              "content": "=Potresti riassumermi in italiano questa trascrizione di un video youtube?\nInoltre il riassunto deve essere lungo al MASSIMO 3900 caratteri e non scrivere quanti caratteri hai utilizzato, basta solo che rispetti questo requisito.\n\nTitolo: {{ $json.title }}\nTrascrizione:\n{{ $json.dataTXT }}"
+              "content": "=Potresti riassumermi in italiano questa trascrizione di un video youtube?\n\nTitolo: {{ $json.title }}\nTrascrizione:\n{{ $json.dataTXT }}"
             }
           ]
         },
         "builtInTools": {},
-        "options": {}
+        "options": {
+          "temperature": 0.9
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
@@ -157,12 +159,13 @@
           "id": "cMUBzFPv4CpKSyHm",
           "name": "Google mio account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
         "chatId": "={{ $json.message.chat.id }}",
-        "text": "=Titolo: {{ $json.video_title }}\n\n{{ $json.chunk_content\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\\*\\*(.*?)\\*\\*/g, '<b>$1</b>')\n  .replace(/\\*(.*?)\\*/g, '<i>$1</i>') \n}}",
+        "text": "=Titolo: {{ $json.video_title }}\nPage: {{ $json.block_index }}\n\n{{ $json.chunk_content\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\\*\\*(.*?)\\*\\*/g, '<b>$1</b>')\n  .replace(/\\*(.*?)\\*/g, '<i>$1</i>') \n}}",
         "additionalFields": {
           "parse_mode": "HTML"
         }
@@ -189,7 +192,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1840,
+        1984,
         32
       ],
       "id": "ef2f34ee-696c-4456-b55b-8b49914d35a7",
@@ -211,8 +214,8 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        1648,
-        256
+        1728,
+        160
       ],
       "id": "66990e99-8acf-4697-aaf2-c55fc47e5af8",
       "name": "extract text"
@@ -283,7 +286,7 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        2624,
+        2576,
         32
       ],
       "id": "897d4101-c63f-408a-974a-336c09ed537e",
@@ -346,7 +349,8 @@
         0
       ],
       "id": "d1c0ec4d-c911-4017-a678-6e9c29903554",
-      "name": "Response cleaning1"
+      "name": "Response cleaning1",
+      "disabled": true
     },
     {
       "parameters": {
@@ -378,7 +382,8 @@
       ],
       "id": "5e17c9d0-6871-410f-8bc1-30bb0a0cb132",
       "name": "POST python worker test1",
-      "executeOnce": true
+      "executeOnce": true,
+      "disabled": true
     },
     {
       "parameters": {
@@ -405,19 +410,6 @@
     },
     {
       "parameters": {
-        "errorMessage": "Errore con il python worker"
-      },
-      "type": "n8n-nodes-base.stopAndError",
-      "typeVersion": 1,
-      "position": [
-        624,
-        720
-      ],
-      "id": "1584ffb1-204a-47e5-96aa-1c3dc6e7483b",
-      "name": "Stop and Error"
-    },
-    {
-      "parameters": {
         "amount": 2
       },
       "type": "n8n-nodes-base.wait",
@@ -437,11 +429,60 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2048,
+        2160,
         32
       ],
       "id": "833e56de-8aa0-4d51-b7b7-c41bda499cc0",
       "name": "Text to Chunks"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive message').item.json.message.chat.id }}",
+        "text": "=ERRORE: errore con il nodo che si interfaccia con gemini, molto probabilmente hai superato il limite imposto dalla tua API key.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        400
+      ],
+      "id": "be37bd5d-9780-4bd6-ab75-ad1fcf1fa7d0",
+      "name": "Send error gemini",
+      "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "BxcEow1owMeOQikf",
+          "name": "Telegram bot yt sum"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "errorMessage": "Errore con il python worker"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        624,
+        720
+      ],
+      "id": "1584ffb1-204a-47e5-96aa-1c3dc6e7483b",
+      "name": "Stop and Error yt-dlp"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Errore con il python worker"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        400
+      ],
+      "id": "e3a22bff-c57b-4cda-916c-c71d8fc3f2cf",
+      "name": "Stop and Error gemini"
     }
   ],
   "pinData": {},
@@ -546,6 +587,13 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Send error gemini",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
@@ -635,7 +683,7 @@
       "main": [
         [
           {
-            "node": "Stop and Error",
+            "node": "Stop and Error yt-dlp",
             "type": "main",
             "index": 0
           }
@@ -652,6 +700,17 @@
           }
         ]
       ]
+    },
+    "Send error gemini": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -659,7 +718,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "a548f594-3667-4965-9178-4b9b0113dabd",
+  "versionId": "700d2a21-3693-46de-b032-c105113e8fe8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "3b97b21f911e43c870f4e3cb7b1de9fa375c3bc9dcbcf7519247122d76d3d3e5"
