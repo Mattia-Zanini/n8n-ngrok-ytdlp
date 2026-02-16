@@ -136,7 +136,7 @@
         "messages": {
           "values": [
             {
-              "content": "=Potresti riassumermi in italiano questa trascrizione di un video youtube?\n\nTitolo: {{ $json.title }}\nTrascrizione:\n{{ $json.dataTXT }}"
+              "content": "=Potresti riassumermi in italiano questa trascrizione di un video youtube?\n\nNome del Canale: {{ $(\"GET youtube oembed\").first().json.author_name; }}\nTitolo: {{ $json.title }}\nTrascrizione:\n{{ $json.dataTXT }}"
             }
           ]
         },
@@ -713,12 +713,12 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "700d2a21-3693-46de-b032-c105113e8fe8",
+  "versionId": "450ed50d-8598-4993-8112-1581a4e0f62c",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "3b97b21f911e43c870f4e3cb7b1de9fa375c3bc9dcbcf7519247122d76d3d3e5"
