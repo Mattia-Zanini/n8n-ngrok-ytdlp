@@ -28,8 +28,11 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [-560, 512],
-      "id": "2894f651-cff0-40df-83a6-0b476312d6e7",
+      "position": [
+        -544,
+        976
+      ],
+      "id": "b91d080c-cb89-428d-aa0e-d7137c35eb03",
       "name": "If"
     },
     {
@@ -56,8 +59,11 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
-      "position": [112, 544],
-      "id": "a78400ae-b66a-4cc9-96f6-ff5d636fd7b1",
+      "position": [
+        -96,
+        784
+      ],
+      "id": "15cffaa6-8983-4a77-b82d-d86f6fe98061",
       "name": "POST python worker",
       "executeOnce": true,
       "onError": "continueErrorOutput"
@@ -69,8 +75,11 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
-      "position": [-256, 496],
-      "id": "9fa4b5c8-83b8-431f-857e-4ca14fbb406d",
+      "position": [
+        -320,
+        880
+      ],
+      "id": "ee8b891b-43fb-463f-a5c9-f0c0fb9725f9",
       "name": "GET youtube oembed",
       "onError": "continueErrorOutput"
     },
@@ -80,8 +89,11 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-752, 288],
-      "id": "63baf5cf-9677-4118-b295-64c2056dda75",
+      "position": [
+        -768,
+        976
+      ],
+      "id": "44b53c20-1a4e-4add-b2bf-c3269ecf39c7",
       "name": "Link check regex"
     },
     {
@@ -91,8 +103,11 @@
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
-      "position": [432, 464],
-      "id": "4235e99e-3d14-41fc-83e8-018faee086ad",
+      "position": [
+        128,
+        784
+      ],
+      "id": "f545112d-d132-4023-b499-e5ab27633a6e",
       "name": "Read/Write Files from Disk",
       "onError": "continueErrorOutput"
     },
@@ -104,8 +119,11 @@
       },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
-      "position": [672, 368],
-      "id": "aa4d8b14-46ce-4977-9860-ee62b604a1dc",
+      "position": [
+        352,
+        688
+      ],
+      "id": "8f019113-4243-473c-8fc3-04dcddc0db8c",
       "name": "Extract from File"
     },
     {
@@ -130,14 +148,17 @@
       },
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
-      "position": [1360, 256],
-      "id": "def1efc0-68d7-4395-be8e-86d941d85773",
+      "position": [
+        1232,
+        624
+      ],
+      "id": "12e5756a-4d10-443d-b838-e7cf792ffcf8",
       "name": "Message a model",
       "executeOnce": true,
       "credentials": {
         "googlePalmApi": {
-          "id": "cMUBzFPv4CpKSyHm",
-          "name": "Google mio account"
+          "id": "ZvFgDGbVmYOCm4Tx",
+          "name": "Google Gemini(PaLM) Api account"
         }
       },
       "onError": "continueErrorOutput"
@@ -152,15 +173,18 @@
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [2336, 32],
-      "id": "36752ac9-ccfc-43a3-bdfd-e79a79ea1060",
+      "position": [
+        2272,
+        448
+      ],
+      "id": "ef1449bb-d5fc-4e2f-a7cb-3d00f9633108",
       "name": "Send final response",
       "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
       "executeOnce": false,
       "credentials": {
         "telegramApi": {
-          "id": "BxcEow1owMeOQikf",
-          "name": "Telegram bot yt sum"
+          "id": "aF9wqEgnSvnDxWxl",
+          "name": "Telegram account"
         }
       }
     },
@@ -168,8 +192,11 @@
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [1984, 32],
-      "id": "ef2f34ee-696c-4456-b55b-8b49914d35a7",
+      "position": [
+        1824,
+        448
+      ],
+      "id": "1dee354a-b540-4dc9-9364-a633f5f1e2e8",
       "name": "Merge final",
       "alwaysOutputData": true,
       "executeOnce": true
@@ -187,8 +214,11 @@
       },
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
-      "position": [1728, 160],
-      "id": "66990e99-8acf-4697-aaf2-c55fc47e5af8",
+      "position": [
+        1600,
+        528
+      ],
+      "id": "fb8aa4df-74d2-4f1f-8034-a5052fbc1b13",
       "name": "extract text"
     },
     {
@@ -207,35 +237,46 @@
       },
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
-      "position": [1072, 256],
-      "id": "865fdfd9-5af7-43ff-befc-eb34cbe54c04",
+      "position": [
+        800,
+        624
+      ],
+      "id": "7d8ce54a-6e43-4ffb-9420-f148e503804a",
       "name": "Essentials data for gemini"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [896, 256],
-      "id": "f162c120-95c9-41e3-b172-9abf1342ef7a",
+      "position": [
+        576,
+        624
+      ],
+      "id": "b03b6791-dff9-4326-8100-a774a903df85",
       "name": "Merge pre AI",
       "alwaysOutputData": true,
       "executeOnce": true
     },
     {
       "parameters": {
-        "updates": ["message"],
+        "updates": [
+          "message"
+        ],
         "additionalFields": {}
       },
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1.2,
-      "position": [-992, 288],
-      "id": "4d3b4423-4cc5-4d9b-bbe0-9c768cbcf487",
+      "position": [
+        -992,
+        832
+      ],
+      "id": "46c1ad30-2ce6-4968-a768-c96fac08ccc8",
       "name": "Receive message",
       "webhookId": "2904795c-b328-4b29-9e6f-8a4ac8476a06",
       "credentials": {
         "telegramApi": {
-          "id": "BxcEow1owMeOQikf",
-          "name": "Telegram bot yt sum"
+          "id": "aF9wqEgnSvnDxWxl",
+          "name": "Telegram account"
         }
       }
     },
@@ -245,8 +286,11 @@
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
-      "position": [2576, 32],
-      "id": "897d4101-c63f-408a-974a-336c09ed537e",
+      "position": [
+        2496,
+        448
+      ],
+      "id": "33f315d8-8d4f-4f4d-8cf9-5af99db78707",
       "name": "Delete transcription file"
     },
     {
@@ -257,15 +301,18 @@
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [-576, 720],
-      "id": "eaa672fb-58ed-4bb7-bd23-574f9598385b",
+      "position": [
+        -320,
+        1072
+      ],
+      "id": "235c924b-dcde-42ce-a049-3173d30f88c1",
       "name": "Send error regex",
       "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "BxcEow1owMeOQikf",
-          "name": "Telegram bot yt sum"
+          "id": "aF9wqEgnSvnDxWxl",
+          "name": "Telegram account"
         }
       }
     },
@@ -277,15 +324,18 @@
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [-176, 720],
-      "id": "aeeb1a51-2e3a-402e-a99f-7fb092272fcd",
+      "position": [
+        -96,
+        976
+      ],
+      "id": "e3caa838-cbb1-4785-a59d-33ceb0bb7d29",
       "name": "Send error video not valid",
       "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "BxcEow1owMeOQikf",
-          "name": "Telegram bot yt sum"
+          "id": "aF9wqEgnSvnDxWxl",
+          "name": "Telegram account"
         }
       }
     },
@@ -295,8 +345,11 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [224, 0],
-      "id": "d1c0ec4d-c911-4017-a678-6e9c29903554",
+      "position": [
+        -992,
+        224
+      ],
+      "id": "daa87deb-824f-40b7-a9d1-71f22e050125",
       "name": "Response cleaning1",
       "disabled": true
     },
@@ -324,8 +377,11 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
-      "position": [0, 0],
-      "id": "5e17c9d0-6871-410f-8bc1-30bb0a0cb132",
+      "position": [
+        -992,
+        0
+      ],
+      "id": "5e799122-6da9-42fb-9ba7-6d57704e4dca",
       "name": "POST python worker test1",
       "executeOnce": true,
       "disabled": true
@@ -338,15 +394,18 @@
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [400, 816],
-      "id": "d5bad677-f642-40cf-bba5-5f2e867d12f3",
+      "position": [
+        128,
+        1072
+      ],
+      "id": "8c8fa3b9-43c6-4fba-9dc5-f1a35bba69a2",
       "name": "Send error yt-dlp transciption download",
       "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "BxcEow1owMeOQikf",
-          "name": "Telegram bot yt sum"
+          "id": "aF9wqEgnSvnDxWxl",
+          "name": "Telegram account"
         }
       }
     },
@@ -356,8 +415,11 @@
       },
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [1232, 432],
-      "id": "89afc4da-4b32-4976-883e-871d6166b150",
+      "position": [
+        1024,
+        624
+      ],
+      "id": "9b517089-da1c-44c3-8269-f79c5e98dc60",
       "name": "Wait",
       "webhookId": "9d03a7a8-bbb0-4983-a5b1-de58de5d0118"
     },
@@ -367,8 +429,11 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2160, 32],
-      "id": "833e56de-8aa0-4d51-b7b7-c41bda499cc0",
+      "position": [
+        2048,
+        448
+      ],
+      "id": "ba04576b-60a0-437a-93e3-aee2cd64e346",
       "name": "Text to Chunks"
     },
     {
@@ -379,15 +444,18 @@
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1744, 400],
-      "id": "be37bd5d-9780-4bd6-ab75-ad1fcf1fa7d0",
+      "position": [
+        1600,
+        720
+      ],
+      "id": "66266770-b3b7-492a-ba52-ea2078a80101",
       "name": "Send error gemini",
       "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "BxcEow1owMeOQikf",
-          "name": "Telegram bot yt sum"
+          "id": "aF9wqEgnSvnDxWxl",
+          "name": "Telegram account"
         }
       }
     },
@@ -397,18 +465,24 @@
       },
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
-      "position": [624, 816],
-      "id": "1584ffb1-204a-47e5-96aa-1c3dc6e7483b",
+      "position": [
+        352,
+        1072
+      ],
+      "id": "8b92959d-dc06-409b-987b-0783d7664560",
       "name": "Stop and Error yt-dlp"
     },
     {
       "parameters": {
-        "errorMessage": "Errore con il python worker"
+        "errorMessage": "Errore con gemini"
       },
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
-      "position": [1984, 400],
-      "id": "e3a22bff-c57b-4cda-916c-c71d8fc3f2cf",
+      "position": [
+        1824,
+        720
+      ],
+      "id": "dbdcbda4-4370-4e75-84a1-eeacd612a91b",
       "name": "Stop and Error gemini"
     },
     {
@@ -419,15 +493,18 @@
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [640, 608],
-      "id": "0ae30f39-8dd9-41e5-ace3-036719d38d65",
+      "position": [
+        352,
+        880
+      ],
+      "id": "0a1efa87-a9f4-4038-a64c-f794dcd88df4",
       "name": "Send error yt-dlp transciption download1",
       "webhookId": "a7415df4-3e29-4eae-b71e-13360101581a",
       "executeOnce": true,
       "credentials": {
         "telegramApi": {
-          "id": "BxcEow1owMeOQikf",
-          "name": "Telegram bot yt sum"
+          "id": "aF9wqEgnSvnDxWxl",
+          "name": "Telegram account"
         }
       }
     },
@@ -437,9 +514,73 @@
       },
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
-      "position": [864, 608],
-      "id": "3141d100-0410-4e3b-acb7-c62d02948d38",
+      "position": [
+        576,
+        880
+      ],
+      "id": "024f7df7-d5c5-4041-8491-00dc4e5fee1c",
       "name": "Stop and Error subtitles file"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "google/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "GOOGLE/GEMINI-2.5-FLASH"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Potresti riassumermi in italiano questa trascrizione di un video youtube?\n\nNome del Canale: {{ $(\"GET youtube oembed\").first().json.author_name; }}\nTitolo: {{ $json.title }}\nTrascrizione:\n{{ $json.dataTXT }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        240
+      ],
+      "id": "788475f9-93db-4732-aeed-c36677b1b671",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "d4bT35xVUPcXlRc1",
+          "name": "OpenRouter account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"openai/gpt-5.2\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Qual è il senso della vita?\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1440,
+        176
+      ],
+      "id": "a19baf60-465c-437c-8cef-f0e946274b2e",
+      "name": "HTTP Request"
     }
   ],
   "pinData": {},
@@ -686,19 +827,24 @@
           }
         ]
       ]
+    },
+    "Message a model1": {
+      "main": [
+        [],
+        []
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": false
+    "binaryMode": "separate"
   },
-  "versionId": "4b092ab4-2ed2-488c-b6d9-4aec9cf570f5",
+  "versionId": "7f422982-931d-4374-b0c9-618053610228",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "3b97b21f911e43c870f4e3cb7b1de9fa375c3bc9dcbcf7519247122d76d3d3e5"
+    "instanceId": "697485f6dea2988b41b045da196c267ca94a07a1168d9cfbac2e38a09c006251"
   },
-  "id": "__yCP98t__f2ffBzYKCF7",
+  "id": "EIBzNz73PDyqTPhB",
   "tags": []
 }
-

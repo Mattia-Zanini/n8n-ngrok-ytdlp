@@ -10,3 +10,6 @@ ngrok.yml
 
 # Authentication cookies
 python_worker/cookies.txt
+
+# Subtitle files in shared_data
+shared_data/*.srt

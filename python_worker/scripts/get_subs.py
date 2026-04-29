@@ -19,6 +19,7 @@ def main():
 
     command = [
         "yt-dlp",
+        "-t", "sleep",
         "--write-auto-subs",
         "--sub-langs", ".*-orig",
         "--convert-subs", "srt",
