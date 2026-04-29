@@ -564,7 +564,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer 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"
+              "value": "Bearer insert_openraouter_key"
             }
           ]
         },
